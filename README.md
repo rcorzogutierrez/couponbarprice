@@ -71,14 +71,47 @@ src/gui.py                # Interfaz gráfica (CustomTkinter)
 requirements.txt
 ```
 
-## Generar un ejecutable (opcional)
+## Redistribuibles para Windows y macOS (sin Python)
 
-Para distribuir la app sin requerir Python instalado, puedes usar
-[PyInstaller](https://pyinstaller.org/):
+El repositorio incluye un workflow de GitHub Actions
+(`.github/workflows/build.yml`) que genera automáticamente ejecutables
+standalone para **Windows** y **macOS** usando runners nativos de cada
+sistema operativo (no requiere Python en las máquinas de destino).
+
+### Descargar un build ya generado
+
+1. Ve a la pestaña **Actions** del repositorio → workflow **"Build desktop
+   app"**.
+2. Si no hay una ejecución reciente, dispárala manualmente con **Run
+   workflow**.
+3. Cuando termine, descarga los artefactos `GeneradorCodigoBarras-Windows`
+   (contiene `GeneradorCodigoBarras.exe`) y `GeneradorCodigoBarras-macOS`
+   (contiene `GeneradorCodigoBarras.app`).
+
+### Publicar una release con los binarios adjuntos
+
+Al crear y subir un tag con formato `vX.Y.Z` (ej. `git tag v1.0.0 && git push
+origin v1.0.0`), el workflow compila ambos binarios y los adjunta
+automáticamente a una GitHub Release.
+
+> En macOS, como la app no está firmada/notarizada, la primera vez que se
+> abra habrá que ir a **Preferencias del Sistema → Privacidad y
+> seguridad** y permitir su ejecución (o clic derecho → Abrir).
+
+### Compilar localmente (opcional)
 
 ```bash
-pip install pyinstaller
-pyinstaller --noconsole --onefile --name "GeneradorCodigoBarras" main.py
+pip install -r requirements-build.txt
+pyinstaller --noconfirm --windowed --onefile \
+  --name "GeneradorCodigoBarras" \
+  --collect-all customtkinter \
+  --collect-all barcode \
+  --hidden-import "PIL._tkinter_finder" \
+  main.py
 ```
 
-El ejecutable quedará en la carpeta `dist/`.
+El resultado queda en `dist/` (`.exe` en Windows, `.app` en macOS, binario
+suelto en Linux). Los flags `--collect-all` son necesarios porque
+CustomTkinter y python-barcode cargan temas/fuentes como archivos de datos
+en tiempo de ejecución, y `PIL._tkinter_finder` es un import oculto que
+`Pillow` necesita para mostrar imágenes en Tkinter.
