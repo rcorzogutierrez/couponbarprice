@@ -5,6 +5,30 @@ barras **Code 39**, pensada para vincularse con números de ítem/artículo de
 tu inventario. Permite condicionar el formato del código (prefijo, relleno
 con ceros, sufijo) y descargar la imagen generada en PNG.
 
+## 📥 Descargar el ejecutable (sin instalar Python)
+
+[![Descargar última versión](https://img.shields.io/github/v/release/rcorzogutierrez/couponbarprice?label=%C3%BAltima%20versi%C3%B3n&style=for-the-badge)](https://github.com/rcorzogutierrez/couponbarprice/releases/latest)
+
+No necesitas tener Python instalado para usar la app. Descarga el
+ejecutable listo para tu sistema operativo:
+
+| Sistema | Descarga |
+|---|---|
+| 🪟 Windows | [`GeneradorCodigoBarras.exe`](https://github.com/rcorzogutierrez/couponbarprice/releases/latest) (en Assets de la última release) |
+| 🍎 macOS | [`GeneradorCodigoBarras.app`](https://github.com/rcorzogutierrez/couponbarprice/releases/latest) (en Assets de la última release) |
+
+> ⚠️ Aún no se ha publicado ninguna release. Mientras tanto, puedes obtener
+> el build más reciente desde la pestaña **[Actions →
+> "Build desktop app"](https://github.com/rcorzogutierrez/couponbarprice/actions/workflows/build.yml)**
+> (artefactos `GeneradorCodigoBarras-Windows` / `GeneradorCodigoBarras-macOS`),
+> o pedir que se publique una release oficial con `git tag vX.Y.Z`. Ver
+> detalles en [Redistribuibles para Windows y macOS](#redistribuibles-para-windows-y-macos-sin-python)
+> más abajo.
+
+En macOS, al no estar la app firmada/notarizada, la primera vez que la
+abras debes hacer clic derecho → **Abrir** (o permitirlo en Preferencias
+del Sistema → Privacidad y seguridad).
+
 ## Características
 
 - Interfaz moderna con tema claro/oscuro/automático.
@@ -92,11 +116,8 @@ sistema operativo (no requiere Python en las máquinas de destino).
 
 Al crear y subir un tag con formato `vX.Y.Z` (ej. `git tag v1.0.0 && git push
 origin v1.0.0`), el workflow compila ambos binarios y los adjunta
-automáticamente a una GitHub Release.
-
-> En macOS, como la app no está firmada/notarizada, la primera vez que se
-> abra habrá que ir a **Preferencias del Sistema → Privacidad y
-> seguridad** y permitir su ejecución (o clic derecho → Abrir).
+automáticamente a una GitHub Release, que quedará disponible en la sección
+de [Descargas](#-descargar-el-ejecutable-sin-instalar-python) de este README.
 
 ### Compilar localmente (opcional)
 
