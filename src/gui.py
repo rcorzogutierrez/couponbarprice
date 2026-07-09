@@ -7,7 +7,10 @@ Python (Tkinter), por lo que no requiere runtimes adicionales para distribuirse.
 
 from __future__ import annotations
 
+import os
+import platform
 import queue
+import subprocess
 import threading
 import tkinter as tk
 import tkinter.colorchooser as colorchooser
@@ -36,6 +39,20 @@ ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("blue")
 
 PREVIEW_MAX_SIZE = (620, 260)
+
+
+def open_folder(path: Path) -> None:
+    """Abre una carpeta en el explorador de archivos del sistema operativo."""
+    system = platform.system()
+    try:
+        if system == "Windows":
+            os.startfile(str(path))  # noqa: S606 - ruta elegida por el propio usuario
+        elif system == "Darwin":
+            subprocess.Popen(["open", str(path)])
+        else:
+            subprocess.Popen(["xdg-open", str(path)])
+    except OSError as exc:
+        raise RuntimeError(f"No se pudo abrir la carpeta:\n{exc}") from exc
 
 
 class LabeledEntry(ctk.CTkFrame):
@@ -510,8 +527,13 @@ class BatchTab(ctk.CTkFrame):
         self.dest_label = ctk.CTkLabel(dest_frame, text="Ninguna carpeta seleccionada", anchor="w", wraplength=330)
         self.dest_label.pack(fill="x", padx=16)
         ctk.CTkButton(dest_frame, text="Elegir carpeta...", command=self.choose_folder).pack(
-            fill="x", padx=16, pady=(8, 16)
+            fill="x", padx=16, pady=(8, 8)
         )
+        self.open_folder_btn = ctk.CTkButton(
+            dest_frame, text="Abrir carpeta destino", command=self.open_destination_folder,
+            fg_color="gray40", hover_color="gray30", state="disabled",
+        )
+        self.open_folder_btn.pack(fill="x", padx=16, pady=(0, 16))
 
         self.generate_batch_btn = ctk.CTkButton(
             left, text="Generar lote", command=self.start_batch, height=40,
@@ -615,6 +637,16 @@ class BatchTab(ctk.CTkFrame):
         if folder:
             self.output_dir = Path(folder)
             self.dest_label.configure(text=str(self.output_dir))
+            self.open_folder_btn.configure(state="normal")
+
+    def open_destination_folder(self) -> None:
+        if self.output_dir is None:
+            messagebox.showwarning("Sin carpeta", "Primero selecciona una carpeta destino.")
+            return
+        try:
+            open_folder(self.output_dir)
+        except RuntimeError as exc:
+            messagebox.showerror("Error al abrir la carpeta", str(exc))
 
     def _log(self, message: str) -> None:
         self.log_box.configure(state="normal")
@@ -698,11 +730,17 @@ class BatchTab(ctk.CTkFrame):
                     ok, failed, total = payload
                     self.progress_label.configure(text=f"Completado: {ok} generados, {failed} con error de {total}.")
                     self.generate_batch_btn.configure(state="normal", text="Generar lote")
-                    messagebox.showinfo(
+                    open_now = messagebox.askyesno(
                         "Lote completado",
                         f"Se generaron {ok} de {total} códigos en:\n{self.output_dir}"
-                        + (f"\n\n{failed} códigos tuvieron errores (ver registro)." if failed else ""),
+                        + (f"\n\n{failed} códigos tuvieron errores (ver registro)." if failed else "")
+                        + "\n\n¿Deseas abrir la carpeta ahora?",
                     )
+                    if open_now and self.output_dir is not None:
+                        try:
+                            open_folder(self.output_dir)
+                        except RuntimeError as exc:
+                            messagebox.showerror("Error al abrir la carpeta", str(exc))
         except queue.Empty:
             pass
 

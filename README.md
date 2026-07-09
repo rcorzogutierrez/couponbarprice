@@ -98,6 +98,9 @@ Luego, en ambos modos:
 1. Elige la **carpeta destino**.
 2. Haz clic en **Generar lote**: se creará un archivo PNG por cada número,
    nombrado según el código resultante (por ejemplo `ITM-000123-A.png`).
+3. Al terminar, se pregunta si deseas abrir la carpeta destino; también
+   puedes abrirla en cualquier momento con el botón **Abrir carpeta
+   destino**.
 
 ## Sobre Code 39
 
