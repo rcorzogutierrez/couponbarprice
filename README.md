@@ -79,9 +79,14 @@ números de ítem, con dos modos intercambiables:
 - **Rango**: indica el **número inicial** y **número final** (ej. `1` a
   `50`) y se genera un código consecutivo por cada número del rango.
 - **Archivo**: haz clic en **Cargar archivo (.txt / .csv)...** y selecciona
-  un archivo con tus números de ítem, uno por línea y/o separados por
-  comas (por ejemplo, un export de tu sistema de inventario). Útil cuando
-  los números no son consecutivos.
+  un archivo con tus números de ítem. Útil cuando los números no son
+  consecutivos (por ejemplo, un export de tu sistema de inventario).
+  - Si el archivo tiene una sola columna (un número por línea, o
+    varios separados por comas), se cargan directamente.
+  - Si tiene **varias columnas** (un CSV con más campos, como
+    `sku,descripción,precio`), se abre un diálogo para elegir cuál
+    columna contiene los números de ítem, con vista previa de los datos
+    y la opción de indicar si la primera fila es un encabezado.
 
 Luego, en ambos modos:
 

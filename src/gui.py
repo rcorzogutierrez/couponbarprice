@@ -23,9 +23,11 @@ from src.barcode_core import (
     CodeFormat,
     EmptyCodeError,
     InvalidCode39CharacterError,
+    extract_column,
+    flatten_single_column,
     generate_barcode_image,
     iter_item_numbers,
-    parse_item_numbers_file,
+    read_table_rows,
     sanitize_filename,
     save_barcode_image,
 )
@@ -359,6 +361,83 @@ class IndividualTab(ctk.CTkFrame):
         self.status_label.configure(text=f"Imagen guardada en: {path}", text_color=("gray20", "gray80"))
 
 
+class ColumnPickerDialog(ctk.CTkToplevel):
+    """Modal para elegir qué columna de un archivo con varias columnas trae los números de ítem."""
+
+    def __init__(self, master, rows: list[list[str]], on_confirm):
+        super().__init__(master)
+        self.title("Selecciona la columna de números de ítem")
+        self.geometry("520x440")
+        self.minsize(460, 380)
+        self.rows = rows
+        self.on_confirm = on_confirm
+        self.transient(master)
+        self.grab_set()
+
+        ctk.CTkLabel(
+            self,
+            text="Tu archivo tiene varias columnas. Elige cuál contiene los números de ítem.",
+            wraplength=480,
+            justify="left",
+        ).pack(fill="x", padx=16, pady=(16, 8))
+
+        self.header_var = tk.BooleanVar(value=True)
+        ctk.CTkCheckBox(
+            self, text="La primera fila es encabezado", variable=self.header_var, command=self._refresh
+        ).pack(anchor="w", padx=16, pady=(0, 8))
+
+        ctk.CTkLabel(self, text="Columna:", anchor="w").pack(fill="x", padx=16)
+        self.column_menu = ctk.CTkOptionMenu(self, values=["Columna 1"])
+        self.column_menu.pack(fill="x", padx=16, pady=(0, 8))
+
+        ctk.CTkLabel(self, text="Vista previa:", anchor="w").pack(fill="x", padx=16)
+        self.preview_box = ctk.CTkTextbox(self, height=180)
+        self.preview_box.pack(fill="both", expand=True, padx=16, pady=(0, 8))
+        self.preview_box.configure(state="disabled")
+
+        button_row = ctk.CTkFrame(self, fg_color="transparent")
+        button_row.pack(fill="x", padx=16, pady=(0, 16))
+        ctk.CTkButton(button_row, text="Cancelar", fg_color="gray40", hover_color="gray30", command=self.destroy).pack(
+            side="left", expand=True, fill="x", padx=(0, 6)
+        )
+        ctk.CTkButton(button_row, text="Usar esta columna", command=self._confirm).pack(
+            side="left", expand=True, fill="x", padx=(6, 0)
+        )
+
+        self._refresh()
+
+    def _column_labels(self) -> list[str]:
+        max_cols = max(len(row) for row in self.rows)
+        if self.header_var.get() and self.rows:
+            header_row = self.rows[0]
+            return [
+                header_row[i] if i < len(header_row) and header_row[i] else f"Columna {i + 1}"
+                for i in range(max_cols)
+            ]
+        return [f"Columna {i + 1}" for i in range(max_cols)]
+
+    def _refresh(self) -> None:
+        labels = self._column_labels()
+        self.column_menu.configure(values=labels)
+        self.column_menu.set(labels[0])
+
+        has_header = self.header_var.get()
+        preview_rows = self.rows[1:6] if has_header else self.rows[:5]
+        text = "\n".join(" | ".join(row) for row in preview_rows) or "(sin datos)"
+        self.preview_box.configure(state="normal")
+        self.preview_box.delete("1.0", "end")
+        self.preview_box.insert("1.0", text)
+        self.preview_box.configure(state="disabled")
+
+    def _confirm(self) -> None:
+        labels = self._column_labels()
+        selected = self.column_menu.get()
+        column_index = labels.index(selected) if selected in labels else 0
+        numbers = extract_column(self.rows, column_index, self.header_var.get())
+        self.destroy()
+        self.on_confirm(numbers)
+
+
 class BatchTab(ctk.CTkFrame):
     """Pestaña para generar en lote un código de barras por cada número de ítem de un rango."""
 
@@ -492,18 +571,38 @@ class BatchTab(ctk.CTkFrame):
         )
         if not path:
             return
+        file_path = Path(path)
         try:
-            numbers = parse_item_numbers_file(Path(path))
+            rows = read_table_rows(file_path)
         except OSError as exc:
             messagebox.showerror("Error al leer archivo", str(exc))
             return
-        if not numbers:
-            messagebox.showwarning("Archivo vacío", "El archivo no contiene números de ítem.")
+        if not rows:
+            messagebox.showwarning("Archivo vacío", "El archivo no contiene datos.")
             return
+
+        max_cols = max(len(row) for row in rows)
+        if max_cols <= 1:
+            numbers = flatten_single_column(rows)
+            if not numbers:
+                messagebox.showwarning("Archivo vacío", "El archivo no contiene números de ítem.")
+                return
+            self._apply_loaded_numbers(numbers, file_path)
+            return
+
+        def on_confirm(numbers: list[str]) -> None:
+            if not numbers:
+                messagebox.showwarning("Columna vacía", "La columna elegida no contiene valores.")
+                return
+            self._apply_loaded_numbers(numbers, file_path)
+
+        ColumnPickerDialog(self, rows, on_confirm)
+
+    def _apply_loaded_numbers(self, numbers: list[str], file_path: Path) -> None:
         self.loaded_numbers = numbers
-        self.loaded_file_path = Path(path)
+        self.loaded_file_path = file_path
         self.file_info_label.configure(
-            text=f"{self.loaded_file_path.name} — {len(numbers)} números cargados",
+            text=f"{file_path.name} — {len(numbers)} números cargados",
             text_color=("gray20", "gray80"),
         )
         self.refresh_sample()

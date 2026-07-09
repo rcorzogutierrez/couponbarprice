@@ -7,6 +7,7 @@ disco. Así se puede probar y reutilizar de forma independiente de Tkinter.
 
 from __future__ import annotations
 
+import csv
 from dataclasses import dataclass
 from io import BytesIO
 from pathlib import Path
@@ -131,13 +132,28 @@ def iter_item_numbers(start: int, end: int) -> range:
     return range(start, end + 1)
 
 
-def parse_item_numbers_file(path: Path) -> list[str]:
-    """Lee un archivo .txt/.csv con números de ítem, uno por línea y/o separados por comas."""
-    text = path.read_text(encoding="utf-8-sig")
-    numbers: list[str] = []
-    for line in text.splitlines():
-        for part in line.split(","):
-            value = part.strip()
-            if value:
-                numbers.append(value)
-    return numbers
+def read_table_rows(path: Path) -> list[list[str]]:
+    """Lee un archivo .txt/.csv como filas de celdas separadas por coma.
+
+    Un .txt con un número por línea produce filas de una sola celda. Las
+    filas totalmente vacías se descartan.
+    """
+    with path.open(newline="", encoding="utf-8-sig") as f:
+        reader = csv.reader(f)
+        rows = [[cell.strip() for cell in row] for row in reader]
+    return [row for row in rows if any(cell for cell in row)]
+
+
+def flatten_single_column(rows: list[list[str]]) -> list[str]:
+    """Junta en una sola lista todas las celdas no vacías de un archivo de una columna."""
+    return [cell for row in rows for cell in row if cell]
+
+
+def extract_column(rows: list[list[str]], column_index: int, has_header: bool) -> list[str]:
+    """Extrae los valores no vacíos de una columna específica."""
+    data_rows = rows[1:] if has_header else rows
+    values: list[str] = []
+    for row in data_rows:
+        if column_index < len(row) and row[column_index]:
+            values.append(row[column_index])
+    return values
