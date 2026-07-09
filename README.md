@@ -39,8 +39,9 @@ del Sistema → Privacidad y seguridad).
   texto, colores de barras y fondo.
 - Descarga individual en PNG.
 - **Generación por lote**: crea automáticamente un PNG por cada número de
-  ítem en un rango (por ejemplo, del 1 al 500) usando el mismo formato,
-  guardando todo en una carpeta.
+  ítem, ya sea de un rango (por ejemplo, del 1 al 500) o cargando un
+  archivo `.txt`/`.csv` con números no consecutivos, usando el mismo
+  formato y guardando todo en una carpeta.
 
 ## Instalación
 
