@@ -5,6 +5,9 @@ barras **Code 39**, pensada para vincularse con números de ítem/artículo de
 tu inventario. Permite condicionar el formato del código (prefijo, relleno
 con ceros, sufijo) y descargar la imagen generada en PNG.
 
+<img width="3839" height="1995" alt="image" src="https://github.com/user-attachments/assets/8153a7e4-b349-4e52-8528-356cfb8d606b" />
+
+
 ## 📥 Descargar el ejecutable (sin instalar Python)
 
 [![Descargar v1.0.0](https://img.shields.io/badge/descargar-v1.0.0-2ea44f?style=for-the-badge)](https://github.com/rcorzogutierrez/couponbarprice/releases/latest)
