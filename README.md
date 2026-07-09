@@ -10,7 +10,7 @@ con ceros, sufijo) y descargar la imagen generada en PNG.
 
 ## 📥 Descargar el ejecutable (sin instalar Python)
 
-[![Descargar v1.0.0](https://img.shields.io/badge/descargar-v1.0.0-2ea44f?style=for-the-badge)](https://github.com/rcorzogutierrez/couponbarprice/releases/latest)
+[![Descargar v1.1.0](https://img.shields.io/badge/descargar-v1.1.0-2ea44f?style=for-the-badge)](https://github.com/rcorzogutierrez/couponbarprice/releases/latest)
 [![Licencia MIT](https://img.shields.io/badge/licencia-MIT-blue?style=for-the-badge)](LICENSE)
 
 No necesitas tener Python instalado para usar la app. Descarga el
@@ -18,8 +18,8 @@ ejecutable listo para tu sistema operativo:
 
 | Sistema | Descarga |
 |---|---|
-| 🪟 Windows | [`GeneradorCodigoBarras-Windows.zip`](https://github.com/rcorzogutierrez/couponbarprice/releases/download/v1.0.0/GeneradorCodigoBarras-Windows.zip) → contiene `GeneradorCodigoBarras.exe` |
-| 🍎 macOS | [`GeneradorCodigoBarras-macOS.zip`](https://github.com/rcorzogutierrez/couponbarprice/releases/download/v1.0.0/GeneradorCodigoBarras-macOS.zip) → contiene `GeneradorCodigoBarras.app` |
+| 🪟 Windows | [`GeneradorCodigoBarras-Windows.zip`](https://github.com/rcorzogutierrez/couponbarprice/releases/download/v1.1.0/GeneradorCodigoBarras-Windows.zip) → contiene `GeneradorCodigoBarras.exe` |
+| 🍎 macOS | [`GeneradorCodigoBarras-macOS.zip`](https://github.com/rcorzogutierrez/couponbarprice/releases/download/v1.1.0/GeneradorCodigoBarras-macOS.zip) → contiene `GeneradorCodigoBarras.app` |
 
 Descomprime el `.zip` descargado y ejecuta el programa directamente; no
 requiere instalación ni Python.
@@ -27,6 +27,11 @@ requiere instalación ni Python.
 En macOS, al no estar la app firmada/notarizada, la primera vez que la
 abras debes hacer clic derecho → **Abrir** (o permitirlo en Preferencias
 del Sistema → Privacidad y seguridad).
+
+En Windows, como el `.exe` tampoco está firmado con un certificado de
+código, es normal que aparezca el aviso **"Windows protected your PC"**
+(SmartScreen) la primera vez. Haz clic en **More info → Run anyway** para
+continuar.
 
 ## Características
 
