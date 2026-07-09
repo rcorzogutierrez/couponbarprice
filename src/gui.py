@@ -462,6 +462,9 @@ class BatchTab(ctk.CTkFrame):
         # En lote no tiene sentido pedir un único número; lo ocultamos y usamos rango o archivo.
         self.format_panel.item_number.grid_remove()
         self.format_panel.pad_length.grid_configure(columnspan=2)
+        # Este panel también trae su propio "Código resultante", pero solo lo actualiza
+        # la pestaña Individual; en lote usamos el label "Ejemplo" de más abajo en su lugar.
+        self.format_panel.preview_label.grid_remove()
         self.format_panel.pack(fill="x", pady=(0, 12))
 
         source_frame = ctk.CTkFrame(left, corner_radius=12)
