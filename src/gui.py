@@ -459,8 +459,8 @@ class BatchTab(ctk.CTkFrame):
         left.grid(row=0, column=0, sticky="nsew", padx=(0, 12))
 
         self.format_panel = FormatPanel(left, on_change=self.refresh_sample)
-        # En lote no tiene sentido pedir un único número; lo ocultamos y usamos rango.
-        self.format_panel.item_number.pack_forget()
+        # En lote no tiene sentido pedir un único número; lo ocultamos y usamos rango o archivo.
+        self.format_panel.item_number.grid_remove()
         self.format_panel.pad_length.grid_configure(columnspan=2)
         self.format_panel.pack(fill="x", pady=(0, 12))
 
