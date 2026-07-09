@@ -7,7 +7,7 @@ con ceros, sufijo) y descargar la imagen generada en PNG.
 
 ## 📥 Descargar el ejecutable (sin instalar Python)
 
-[![Descargar última versión](https://img.shields.io/github/v/release/rcorzogutierrez/couponbarprice?label=%C3%BAltima%20versi%C3%B3n&style=for-the-badge)](https://github.com/rcorzogutierrez/couponbarprice/releases/latest)
+[![Descargar v1.0.0](https://img.shields.io/badge/descargar-v1.0.0-2ea44f?style=for-the-badge)](https://github.com/rcorzogutierrez/couponbarprice/releases/latest)
 
 No necesitas tener Python instalado para usar la app. Descarga el
 ejecutable listo para tu sistema operativo:
