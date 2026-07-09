@@ -2,9 +2,17 @@ name: Build desktop app
 
 on:
   workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Publish/attach binaries to this release tag (e.g. v1.0.0). Leave empty to just build artifacts."
+        required: false
+        default: ""
   push:
     tags:
       - "v*.*.*"
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -57,7 +65,9 @@ jobs:
           if-no-files-found: error
 
       - name: Attach to release
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/') || github.event.inputs.release_tag != ''
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || github.event.inputs.release_tag }}
+          target_commitish: ${{ github.sha }}
           files: GeneradorCodigoBarras-*.zip
