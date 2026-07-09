@@ -71,12 +71,21 @@ python main.py
 
 ### Pestaña "Generación por lote"
 
-Ideal para generar de una sola vez los códigos de un rango de artículos:
+Ideal para generar de una sola vez los códigos de varios artículos. Define
+el mismo formato (prefijo/relleno/sufijo) y elige de dónde salen los
+números de ítem, con dos modos intercambiables:
 
-1. Define el mismo formato (prefijo/relleno/sufijo).
-2. Indica el **número inicial** y **número final** del rango.
-3. Elige la **carpeta destino**.
-4. Haz clic en **Generar lote**: se creará un archivo PNG por cada número,
+- **Rango**: indica el **número inicial** y **número final** (ej. `1` a
+  `50`) y se genera un código consecutivo por cada número del rango.
+- **Archivo**: haz clic en **Cargar archivo (.txt / .csv)...** y selecciona
+  un archivo con tus números de ítem, uno por línea y/o separados por
+  comas (por ejemplo, un export de tu sistema de inventario). Útil cuando
+  los números no son consecutivos.
+
+Luego, en ambos modos:
+
+1. Elige la **carpeta destino**.
+2. Haz clic en **Generar lote**: se creará un archivo PNG por cada número,
    nombrado según el código resultante (por ejemplo `ITM-000123-A.png`).
 
 ## Sobre Code 39

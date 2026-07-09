@@ -129,3 +129,15 @@ def iter_item_numbers(start: int, end: int) -> range:
     if end < start:
         start, end = end, start
     return range(start, end + 1)
+
+
+def parse_item_numbers_file(path: Path) -> list[str]:
+    """Lee un archivo .txt/.csv con números de ítem, uno por línea y/o separados por comas."""
+    text = path.read_text(encoding="utf-8-sig")
+    numbers: list[str] = []
+    for line in text.splitlines():
+        for part in line.split(","):
+            value = part.strip()
+            if value:
+                numbers.append(value)
+    return numbers

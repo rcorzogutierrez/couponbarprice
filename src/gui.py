@@ -25,6 +25,7 @@ from src.barcode_core import (
     InvalidCode39CharacterError,
     generate_barcode_image,
     iter_item_numbers,
+    parse_item_numbers_file,
     sanitize_filename,
     save_barcode_image,
 )
@@ -367,6 +368,9 @@ class BatchTab(ctk.CTkFrame):
         self.output_dir: Path | None = None
         self.progress_queue: queue.Queue = queue.Queue()
         self.worker_thread: threading.Thread | None = None
+        self.source_mode: str = "rango"
+        self.loaded_numbers: list[str] = []
+        self.loaded_file_path: Path | None = None
 
         self.grid_columnconfigure(0, weight=0, minsize=380)
         self.grid_columnconfigure(1, weight=1)
@@ -381,21 +385,38 @@ class BatchTab(ctk.CTkFrame):
         self.format_panel.pad_length.grid_configure(columnspan=2)
         self.format_panel.pack(fill="x", pady=(0, 12))
 
-        range_frame = ctk.CTkFrame(left, corner_radius=12)
-        range_frame.pack(fill="x", pady=(0, 12))
-        range_title = ctk.CTkLabel(range_frame, text="Rango de ítems", font=ctk.CTkFont(size=16, weight="bold"))
-        range_title.grid(row=0, column=0, columnspan=2, sticky="w", padx=16, pady=(14, 8))
+        source_frame = ctk.CTkFrame(left, corner_radius=12)
+        source_frame.pack(fill="x", pady=(0, 12))
+        source_title = ctk.CTkLabel(source_frame, text="Números de ítems", font=ctk.CTkFont(size=16, weight="bold"))
+        source_title.pack(anchor="w", padx=16, pady=(14, 8))
 
-        self.start_entry = LabeledEntry(range_frame, "Número inicial", "Ej: 1")
-        self.start_entry.grid(row=1, column=0, sticky="ew", padx=(16, 8), pady=6)
-        self.end_entry = LabeledEntry(range_frame, "Número final", "Ej: 50")
-        self.end_entry.grid(row=1, column=1, sticky="ew", padx=(8, 16), pady=6)
+        self.mode_selector = ctk.CTkSegmentedButton(
+            source_frame, values=["Rango", "Archivo"], command=self._on_mode_change
+        )
+        self.mode_selector.set("Rango")
+        self.mode_selector.pack(fill="x", padx=16, pady=(0, 10))
+
+        self.range_subframe = ctk.CTkFrame(source_frame, fg_color="transparent")
+        self.start_entry = LabeledEntry(self.range_subframe, "Número inicial", "Ej: 1")
+        self.start_entry.grid(row=0, column=0, sticky="ew", padx=(0, 8))
+        self.end_entry = LabeledEntry(self.range_subframe, "Número final", "Ej: 50")
+        self.end_entry.grid(row=0, column=1, sticky="ew", padx=(8, 0))
+        self.range_subframe.grid_columnconfigure((0, 1), weight=1)
         for widget in (self.start_entry.entry, self.end_entry.entry):
             widget.bind("<KeyRelease>", lambda _e: self.refresh_sample())
+        self.range_subframe.pack(fill="x", padx=16, pady=(0, 8))
 
-        self.sample_label = ctk.CTkLabel(range_frame, text="Ejemplo: —", anchor="w")
-        self.sample_label.grid(row=2, column=0, columnspan=2, sticky="ew", padx=16, pady=(0, 14))
-        range_frame.grid_columnconfigure((0, 1), weight=1)
+        self.file_subframe = ctk.CTkFrame(source_frame, fg_color="transparent")
+        ctk.CTkButton(
+            self.file_subframe, text="Cargar archivo (.txt / .csv)...", command=self.choose_numbers_file
+        ).pack(fill="x")
+        self.file_info_label = ctk.CTkLabel(
+            self.file_subframe, text="Ningún archivo cargado", anchor="w", wraplength=330
+        )
+        self.file_info_label.pack(fill="x", pady=(8, 0))
+
+        self.sample_label = ctk.CTkLabel(source_frame, text="Ejemplo: —", anchor="w")
+        self.sample_label.pack(fill="x", padx=16, pady=(0, 14))
 
         self.style_panel = StylePanel(left, on_change=self.refresh_sample)
         self.style_panel.pack(fill="x", pady=(0, 12))
@@ -440,8 +461,11 @@ class BatchTab(ctk.CTkFrame):
 
     def refresh_sample(self) -> None:
         fmt = self.format_panel.get_format()
-        start_text = self.start_entry.get().strip()
-        sample_number = start_text if start_text.isdigit() else "123"
+        if self.source_mode == "archivo":
+            sample_number = self.loaded_numbers[0] if self.loaded_numbers else "123"
+        else:
+            start_text = self.start_entry.get().strip()
+            sample_number = start_text if start_text.isdigit() else "123"
         code = fmt.build(sample_number)
         try:
             from src.barcode_core import validate_code39
@@ -450,6 +474,39 @@ class BatchTab(ctk.CTkFrame):
             self.sample_label.configure(text=f"Ejemplo: {code}", text_color=("gray20", "gray80"))
         except (InvalidCode39CharacterError, EmptyCodeError) as exc:
             self.sample_label.configure(text=str(exc), text_color=("#c0392b", "#ff6b6b"))
+
+    def _on_mode_change(self, value: str) -> None:
+        self.source_mode = "archivo" if value == "Archivo" else "rango"
+        if self.source_mode == "rango":
+            self.file_subframe.pack_forget()
+            self.range_subframe.pack(fill="x", padx=16, pady=(0, 8))
+        else:
+            self.range_subframe.pack_forget()
+            self.file_subframe.pack(fill="x", padx=16, pady=(0, 8))
+        self.refresh_sample()
+
+    def choose_numbers_file(self) -> None:
+        path = filedialog.askopenfilename(
+            title="Selecciona un archivo con números de ítem",
+            filetypes=[("Texto o CSV", "*.txt *.csv"), ("Todos los archivos", "*.*")],
+        )
+        if not path:
+            return
+        try:
+            numbers = parse_item_numbers_file(Path(path))
+        except OSError as exc:
+            messagebox.showerror("Error al leer archivo", str(exc))
+            return
+        if not numbers:
+            messagebox.showwarning("Archivo vacío", "El archivo no contiene números de ítem.")
+            return
+        self.loaded_numbers = numbers
+        self.loaded_file_path = Path(path)
+        self.file_info_label.configure(
+            text=f"{self.loaded_file_path.name} — {len(numbers)} números cargados",
+            text_color=("gray20", "gray80"),
+        )
+        self.refresh_sample()
 
     def choose_folder(self) -> None:
         folder = filedialog.askdirectory(title="Selecciona la carpeta destino")
@@ -471,14 +528,22 @@ class BatchTab(ctk.CTkFrame):
             messagebox.showwarning("Falta carpeta", "Selecciona una carpeta destino antes de generar el lote.")
             return
 
-        start_text = self.start_entry.get().strip()
-        end_text = self.end_entry.get().strip()
-        if not (start_text.isdigit() and end_text.isdigit()):
-            messagebox.showwarning("Rango inválido", "El número inicial y final deben ser enteros positivos.")
-            return
+        if self.source_mode == "archivo":
+            if not self.loaded_numbers:
+                messagebox.showwarning(
+                    "Falta archivo", "Carga un archivo con números de ítem antes de generar el lote."
+                )
+                return
+            numbers = list(self.loaded_numbers)
+        else:
+            start_text = self.start_entry.get().strip()
+            end_text = self.end_entry.get().strip()
+            if not (start_text.isdigit() and end_text.isdigit()):
+                messagebox.showwarning("Rango inválido", "El número inicial y final deben ser enteros positivos.")
+                return
+            start, end = int(start_text), int(end_text)
+            numbers = [str(n) for n in iter_item_numbers(start, end)]
 
-        start, end = int(start_text), int(end_text)
-        numbers = list(iter_item_numbers(start, end))
         if len(numbers) > 5000:
             if not messagebox.askyesno(
                 "Lote muy grande",
@@ -501,7 +566,7 @@ class BatchTab(ctk.CTkFrame):
             total = len(numbers)
             ok, failed = 0, 0
             for index, number in enumerate(numbers, start=1):
-                code_text = fmt.build(str(number))
+                code_text = fmt.build(number)
                 try:
                     image, final_code = generate_barcode_image(code_text, style, add_checksum=add_checksum)
                     filename = sanitize_filename(final_code) + ".png"
