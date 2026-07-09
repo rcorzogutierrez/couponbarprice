@@ -8,6 +8,7 @@ con ceros, sufijo) y descargar la imagen generada en PNG.
 ## 📥 Descargar el ejecutable (sin instalar Python)
 
 [![Descargar v1.0.0](https://img.shields.io/badge/descargar-v1.0.0-2ea44f?style=for-the-badge)](https://github.com/rcorzogutierrez/couponbarprice/releases/latest)
+[![Licencia MIT](https://img.shields.io/badge/licencia-MIT-blue?style=for-the-badge)](LICENSE)
 
 No necesitas tener Python instalado para usar la app. Descarga el
 ejecutable listo para tu sistema operativo:
@@ -131,3 +132,7 @@ suelto en Linux). Los flags `--collect-all` son necesarios porque
 CustomTkinter y python-barcode cargan temas/fuentes como archivos de datos
 en tiempo de ejecución, y `PIL._tkinter_finder` es un import oculto que
 `Pillow` necesita para mostrar imágenes en Tkinter.
+
+## Licencia
+
+Este proyecto está bajo la licencia [MIT](LICENSE).
