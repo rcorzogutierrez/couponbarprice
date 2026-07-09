@@ -14,16 +14,11 @@ ejecutable listo para tu sistema operativo:
 
 | Sistema | Descarga |
 |---|---|
-| 🪟 Windows | [`GeneradorCodigoBarras.exe`](https://github.com/rcorzogutierrez/couponbarprice/releases/latest) (en Assets de la última release) |
-| 🍎 macOS | [`GeneradorCodigoBarras.app`](https://github.com/rcorzogutierrez/couponbarprice/releases/latest) (en Assets de la última release) |
+| 🪟 Windows | [`GeneradorCodigoBarras-Windows.zip`](https://github.com/rcorzogutierrez/couponbarprice/releases/download/v1.0.0/GeneradorCodigoBarras-Windows.zip) → contiene `GeneradorCodigoBarras.exe` |
+| 🍎 macOS | [`GeneradorCodigoBarras-macOS.zip`](https://github.com/rcorzogutierrez/couponbarprice/releases/download/v1.0.0/GeneradorCodigoBarras-macOS.zip) → contiene `GeneradorCodigoBarras.app` |
 
-> ⚠️ Aún no se ha publicado ninguna release. Mientras tanto, puedes obtener
-> el build más reciente desde la pestaña **[Actions →
-> "Build desktop app"](https://github.com/rcorzogutierrez/couponbarprice/actions/workflows/build.yml)**
-> (artefactos `GeneradorCodigoBarras-Windows` / `GeneradorCodigoBarras-macOS`),
-> o pedir que se publique una release oficial con `git tag vX.Y.Z`. Ver
-> detalles en [Redistribuibles para Windows y macOS](#redistribuibles-para-windows-y-macos-sin-python)
-> más abajo.
+Descomprime el `.zip` descargado y ejecuta el programa directamente; no
+requiere instalación ni Python.
 
 En macOS, al no estar la app firmada/notarizada, la primera vez que la
 abras debes hacer clic derecho → **Abrir** (o permitirlo en Preferencias
